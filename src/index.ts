@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import passport from "passport";
 
 import userRoutes from "./routes/authRoutes";
+import taskRoutes from "./routes/taskRoutes";
 import "./config/passport";
 
 dotenv.config();
@@ -12,15 +13,16 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// Basic middleware
+
 app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
 
-// Routes
-app.use("/api/auth", userRoutes);
 
-// Connect to MongoDB Atlas
+app.use("/api/auth", userRoutes);
+app.use("/api/task", taskRoutes);
+
+
 const connectDB = async () => {
   try {
     const mongoURI = process.env.MONGODB_URI;
