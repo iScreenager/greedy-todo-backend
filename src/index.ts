@@ -4,8 +4,9 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import passport from "passport";
 
-import userRoutes from "./routes/authRoutes";
+import authRoutes from "./routes/authRoutes";
 import taskRoutes from "./routes/taskRoutes";
+import userRoutes from "./routes/userRoutes";
 import "./config/passport";
 
 dotenv.config();
@@ -13,15 +14,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-
 app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
 
-
-app.use("/api/auth", userRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/task", taskRoutes);
-
+app.use("/api/user", userRoutes);
 
 const connectDB = async () => {
   try {

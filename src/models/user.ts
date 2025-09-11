@@ -8,6 +8,9 @@ export interface IUser extends Document {
   role: "normaluser" | "superuser";
   createdAt: Date;
   updatedAt: Date;
+  authProvider: "local" | "google";
+  photo?: string;
+  lastLogin: number;
 }
 
 const userSchema: Schema<IUser> = new Schema(
@@ -22,7 +25,7 @@ const userSchema: Schema<IUser> = new Schema(
     },
     password: {
       type: String,
-      required: function () {
+      required: function (this: IUser) {
         return !this.googleId;
       },
       minlength: 8,
@@ -32,6 +35,16 @@ const userSchema: Schema<IUser> = new Schema(
       type: String,
       enum: ["normaluser", "superuser"],
       default: "normaluser",
+    },
+    photo: { type: String, default: "" },
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+    lastLogin: {
+      type: Number,
+      required: true,
     },
   },
   { timestamps: true }

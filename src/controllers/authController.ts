@@ -32,13 +32,20 @@ export const register = async (req: Request, res: Response) => {
       email: email.toLowerCase(),
       password: hashedPassword,
       role: "normaluser",
+      authProvider: "local",
+      lastLogin: new Date().getTime(),
     });
     const secret = process.env.JWT_SECRET;
     if (!secret) {
       throw new Error("JWT secret not configured");
     }
     const token = jwt.sign(
-      { userId: newUser._id, email: newUser.email, role: newUser.role },
+      {
+        userId: newUser._id,
+        email: newUser.email,
+        role: newUser.role,
+        authProvider: newUser.authProvider,
+      },
       secret
     );
 
@@ -50,6 +57,10 @@ export const register = async (req: Request, res: Response) => {
         name: newUser.name,
         email: newUser.email,
         role: newUser.role,
+        createdAt: newUser.createdAt,
+        updatedAt: newUser.updatedAt,
+        authProvider: newUser.authProvider,
+        lastLoginTime: newUser.lastLogin,
       },
     });
   } catch (error) {
@@ -87,14 +98,24 @@ export const login = async (req: Request, res: Response) => {
       { expiresIn: "2d" }
     );
 
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: user._id },
+      { $set: { lastLogin: new Date() } },
+      { new: true }
+    );
+
     return res.status(200).json({
       message: "Login successful",
       token,
       user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
+        id: updatedUser?._id,
+        name: updatedUser?.name,
+        email: updatedUser?.email,
+        role: updatedUser?.role,
+        createdAt: updatedUser?.createdAt,
+        updatedAt: updatedUser?.updatedAt,
+        authProvider: updatedUser?.authProvider,
+        lastLoginTime: updatedUser?.lastLogin,
       },
     });
   } catch (error) {

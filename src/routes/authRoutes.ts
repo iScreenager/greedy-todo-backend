@@ -3,7 +3,7 @@ import passport from "passport";
 import jwt from "jsonwebtoken";
 
 import { register, login } from "../controllers/authController";
-import { IUser } from "../models/user";
+import User, { IUser } from "../models/user";
 
 const router = express.Router();
 
@@ -21,7 +21,7 @@ router.get(
     session: false,
     failureRedirect: "/login",
   }),
-  (req, res) => {
+  async (req, res) => {
     const user = req.user as IUser;
 
     if (!user) {
@@ -34,13 +34,25 @@ router.get(
       secret,
       { expiresIn: "2d" }
     );
+
+    const updatedUser = await User.findOneAndUpdate(
+      { googleId: user.googleId },
+      { $set: { lastLogin: new Date() } },
+      { new: true }
+    );
+
     const userObj = {
-      name: user.name,
-      id: user._id,
-      email: user.email,
-      role: user.role,
+      name: updatedUser?.name,
+      id: updatedUser?._id,
+      email: updatedUser?.email,
+      role: updatedUser?.role,
+      createdAt: updatedUser?.createdAt,
+      updatedAt: updatedUser?.updatedAt,
+      authProvider: updatedUser?.authProvider,
+      photo: updatedUser?.photo,
+      lastLoginTime: updatedUser?.lastLogin,
     };
-    
+
     res.redirect(
       `${process.env.FRONTEND_URL}/auth/google-callback?token=${token}&user=${encodeURIComponent(JSON.stringify(userObj))}`
     );

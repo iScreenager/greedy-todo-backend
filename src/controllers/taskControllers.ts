@@ -24,9 +24,8 @@ export const createTask = async (req: AuthenticatedRequest, res: Response) => {
       userId: req.user.userId,
       title: title.trim(),
       description: description.trim(),
-      dueDate: new Date(dueDate),
+      dueDate: dueDate,
       dueTime,
-     
     });
 
     return res.status(201).json({
@@ -78,7 +77,7 @@ export const getTasksById = async (
 export const updateTask = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const taskId = req.params.id;
-    const { title, description, dueDate, dueTime} = req.body;
+    const { title, description, dueDate, dueTime } = req.body;
 
     const task = await Task.findOne({ _id: taskId, userId: req.user?.userId });
 
@@ -90,7 +89,6 @@ export const updateTask = async (req: AuthenticatedRequest, res: Response) => {
     task.description = description ?? task.description;
     task.dueDate = dueDate ?? task.dueDate;
     task.dueTime = dueTime ?? task.dueTime;
-    
 
     await task.save();
 
