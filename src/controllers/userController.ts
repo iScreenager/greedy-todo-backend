@@ -103,13 +103,19 @@ export const changeUserRole = async (
     user.role = user.role === "superuser" ? "normaluser" : "superuser";
     await user.save();
 
-    // const io = req.app.get("io");
-    // if (io) {
-    //   io.emit("userTypeUpdated", {
-    //     userId: user._id,
-    //     role: user.role,
-    //   });
-    // }
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("userRoleUpdated", {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        authProvider: user.authProvider,
+        lastLoginTime: user.lastLogin,
+      });
+    }
 
     return res.status(200).json({
       message: `User role changed to ${user.role}`,

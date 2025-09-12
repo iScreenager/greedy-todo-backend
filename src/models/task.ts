@@ -1,6 +1,6 @@
 import mongoose, { Model, Schema } from "mongoose";
 
-export interface ITask extends Document {
+export interface ITask {
   userId: mongoose.Types.ObjectId;
   title: string;
   description: string;
@@ -8,6 +8,7 @@ export interface ITask extends Document {
   dueTime: string;
   createdAt: Date;
   updatedAt: Date;
+  status?: "expired" | "4hr";
 }
 
 const taskSchema: Schema<ITask> = new Schema(
