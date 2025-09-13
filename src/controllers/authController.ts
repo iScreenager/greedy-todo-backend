@@ -123,3 +123,72 @@ export const login = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Error while logging user" });
   }
 };
+
+export const guestLogin = async (req: Request, res: Response) => {
+  try {
+    const timestamp = Date.now();
+    const guestEmail = `guest_${timestamp}@example.com`;
+
+    const guestUserData = {
+      name: 'Guest User',
+      email: guestEmail,
+      role: 'normaluser' as const,
+      authProvider: 'guest' as const,
+      photo: '',
+      lastLogin: timestamp,
+      isGuest: true,
+      guestExpiry: timestamp + (24 * 60 * 60 * 1000)
+    };
+
+    let guestUser;
+    try {
+      guestUser = await User.create(guestUserData);
+    } catch (error) {
+      console.error('Guest user creation error:', error);
+      if (!guestUser) {
+        throw new Error(`Failed to create guest user: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    }
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT secret not configured");
+    }
+
+    const token = jwt.sign(
+      { 
+        userId: guestUser._id,
+        email: guestUser.email,
+        role: guestUser.role,
+        authProvider: guestUser.authProvider,
+        isGuest: true
+      },
+      secret,
+      { expiresIn: '24h' }
+    );
+
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        id: guestUser._id,
+        name: guestUser.name,
+        email: guestUser.email,
+        role: guestUser.role,
+        createdAt: guestUser.createdAt,
+        lastLoginTime: guestUser.lastLogin,
+        updatedAt: guestUser.updatedAt,
+        photo: guestUser.photo,
+        authProvider: guestUser.authProvider
+      }
+    });
+
+  } catch (error) {
+    console.error('Guest login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create guest session',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};

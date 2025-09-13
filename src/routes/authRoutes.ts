@@ -2,13 +2,14 @@ import express from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 
-import { register, login } from "../controllers/authController";
+import { register, login, guestLogin } from "../controllers/authController";
 import User, { IUser } from "../models/user";
 
 const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
+router.post("/guest-login", guestLogin);
 
 router.get(
   "/google",
