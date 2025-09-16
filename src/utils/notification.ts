@@ -23,7 +23,6 @@ export async function getUserTasksStatus(userId: string) {
   try {
     const tasks: ITask[] = await Task.find({ userId }).lean();
     const now = new Date();
-    const fourHoursLater = new Date(now.getTime() + 4 * 60 * 60 * 1000);
 
     const result: ITask[] = [];
 
@@ -34,16 +33,22 @@ export async function getUserTasksStatus(userId: string) {
       const dueDateTime = new Date(task.dueDate);
       dueDateTime.setHours(hours, minutes, 0, 0);
 
+      const fourHoursBefore = new Date(
+        dueDateTime.getTime() - 4 * 60 * 60 * 1000
+      );
+
       if (dueDateTime.getTime() <= now.getTime()) {
         if (task.status !== "expired") {
+          await Task.findByIdAndUpdate(task._id, { status: "expired" });
           result.push({ ...task, status: "expired" });
         }
         continue;
       }
 
-      const diff = dueDateTime.getTime() - fourHoursLater.getTime();
+      const diff = now.getTime() - fourHoursBefore.getTime();
       if (Math.abs(diff) <= 60 * 1000) {
         if (task.status !== "4hr") {
+          await Task.findByIdAndUpdate(task._id, { status: "4hr" });
           result.push({ ...task, status: "4hr" });
         }
         continue;

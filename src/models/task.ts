@@ -2,18 +2,20 @@ import mongoose, { Model, Schema } from "mongoose";
 
 export interface ITask {
   userId: mongoose.Types.ObjectId;
+  _id: mongoose.Types.ObjectId;
   title: string;
   description: string;
   dueDate: number;
   dueTime: string;
   createdAt: Date;
   updatedAt: Date;
-  status?: "expired" | "4hr";
+  status?: "expired" | "4hr" | undefined;
 }
 
 const taskSchema: Schema<ITask> = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    _id: { type: Schema.Types.ObjectId, auto: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
     dueDate: {

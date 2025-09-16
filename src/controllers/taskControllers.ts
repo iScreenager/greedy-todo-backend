@@ -26,6 +26,7 @@ export const createTask = async (req: AuthenticatedRequest, res: Response) => {
       description: description.trim(),
       dueDate: dueDate,
       dueTime,
+      status: undefined,
     });
 
     return res.status(201).json({
@@ -70,7 +71,7 @@ export const getTasksById = async (
 
     return res.status(200).json({ task });
   } catch (err) {
-    return res.status(500).json({ error: "Something went wrong" });
+    return res.status(500).json({ error: "Something went wrong:",err });
   }
 };
 
@@ -89,6 +90,7 @@ export const updateTask = async (req: AuthenticatedRequest, res: Response) => {
     task.description = description ?? task.description;
     task.dueDate = dueDate ?? task.dueDate;
     task.dueTime = dueTime ?? task.dueTime;
+    task.status = undefined;
 
     await task.save();
 
